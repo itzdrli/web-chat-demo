@@ -23,14 +23,19 @@
 	},
 	"dependencies": {
 		"@deno/kv": "^0.10.0",
+		"@fontsource-variable/noto-sans-sc": "^5.2.5",
+		"@fontsource/jetbrains-mono": "^5.2.5",
+		"@shikijs/markdown-it": "^3.2.1",
 		"@types/cookie-parser": "^1.4.8",
 		"@types/js-cookie": "^3.0.6",
+		"@types/markdown-it": "^14.1.2",
 		"cookie": "^1.0.2",
 		"js-cookie": "^3.0.5",
 		"m3-svelte": "^3.4.10",
 		"markdown-it": "^14.1.0",
 		"normalize.css": "^8.0.1",
 		"postcss-preset-env": "^10.1.5",
+		"shiki": "^3.2.1",
 		"uuid": "^11.1.0",
 		"zod": "^3.24.2"
 	}

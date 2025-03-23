@@ -3,6 +3,8 @@
   import './app.pcss';
   import 'normalize.css';
   import { v4 } from 'uuid';
+  import "@fontsource/jetbrains-mono"
+  import "@fontsource-variable/noto-sans-sc"
 
   window.crypto.randomUUID = v4 as typeof window.crypto.randomUUID;
 </script>

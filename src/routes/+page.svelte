@@ -35,7 +35,7 @@
   let dialogOpen = $derived(!login);
 
   WebSocket.prototype.emit = emit;
-  const socket = new WebSocket(`ws://${ window.location.host }`);
+  const socket = new WebSocket(`wss://${ window.location.host }`);
 
   let echo = true;
 
@@ -104,6 +104,10 @@
       inputName = get.user.username;
       messages = get.messages
       login = true;
+    }
+    await tick()
+    if (messageList) {
+      messageList.scrollTop = messageList.scrollHeight
     }
   });
 
@@ -174,6 +178,7 @@
   </div>
   <div class="message-input m3-container">
     <ChatInput bind:value={inputMessage} onSubmit={submitMessage}
+               uploadImage={async ()=>{snackbar({message: '还没做，先用图床吧'})}}
                disabled={dialogOpen}/>
   </div>
   <div class="user-list">
@@ -207,12 +212,14 @@
     }
 
     & .message-list {
+      width: 100%;
       display: flex;
       flex-direction: column;
       flex-wrap: nowrap;
       gap: 1rem;
       grid-area: message-list;
       overflow-y: scroll;
+      overflow-x: scroll;
     }
 
     & .message-input {

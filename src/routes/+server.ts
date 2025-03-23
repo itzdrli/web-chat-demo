@@ -1,4 +1,4 @@
-import { type ClientMessageData, LoginSchema, POSTSchema } from '$lib';
+import { POSTSchema } from '$lib';
 import { db, messageAbstention } from '$lib/server/db';
 import {
   json,
@@ -12,6 +12,18 @@ import {
 import type {
   RequestHandler,
 } from './$types';
+import MarkdownIt from 'markdown-it';
+import Shiki from '@shikijs/markdown-it';
+
+const md = new MarkdownIt();
+md.use(
+  await Shiki({
+    themes: {
+      light: 'vitesse-light',
+      dark: 'vitesse-dark',
+    }
+  })
+);
 
 const wsListener: CommonWsServerListener = new CommonWsServerListener();
 
@@ -28,11 +40,11 @@ wsListener.register('server-message', async (e, p) => {
     if (cookies['chat-token']) {
       const token = cookies['chat-token'];
       const user = await db.getUser(token);
+      const rendered = md.render(e.data.content);
       if (user) {
-        console.log(user.username, e.data.content);
         await db.addMessage({
           username: user.username,
-          content: e.data.content,
+          content: rendered,
           timestamp: e.data.timestamp,
           userid: user.userid,
         });
@@ -40,7 +52,7 @@ wsListener.register('server-message', async (e, p) => {
           type: 'client-message',
           data: {
             username: user.username,
-            content: e.data.content,
+            content: rendered,
             timestamp: e.data.timestamp,
             self: false,
           },
