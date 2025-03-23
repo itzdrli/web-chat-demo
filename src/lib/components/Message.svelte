@@ -60,6 +60,10 @@
       padding-left: 1.2rem;
       margin: 0;
     }
+
+    & :global(img) {
+      max-width: 100%;
+    }
   }
 
   :root {

@@ -35,7 +35,7 @@
   let dialogOpen = $derived(!login);
 
   WebSocket.prototype.emit = emit;
-  const socket = new WebSocket(`wss://${ window.location.host }`);
+  const socket = new WebSocket(`ws://${ window.location.host }`);
 
   let echo = true;
 
@@ -219,7 +219,7 @@
       gap: 1rem;
       grid-area: message-list;
       overflow-y: scroll;
-      overflow-x: scroll;
+      overflow-x: hidden;
     }
 
     & .message-input {
