@@ -39,6 +39,7 @@
     & :global(img) {
       margin: 0;
       border-radius: 6px;
+      object-fit: cover;
     }
 
     & :global(h1),
@@ -88,6 +89,7 @@
   }
 
   .message {
+    max-width: 80%;
     display: flex;
     flex-direction: column;
     padding: 0.8rem;
@@ -96,7 +98,6 @@
     color: rgb(var(--m3-scheme-on-surface));
     background-color: rgb(var(--m3-scheme-surface-container-low));
     box-shadow: var(--m3-util-elevation-1);
-    max-width: 100%;
 
     &.start {
       justify-content: flex-start;

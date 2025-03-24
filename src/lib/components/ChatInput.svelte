@@ -29,9 +29,7 @@
     if (items) {
       for (const item of items) {
         if (item.type.indexOf('image') === 0) {
-          disabled = true;
           await uploadImage?.(item.getAsFile()!);
-          disabled = false;
           break;
         }
       }
