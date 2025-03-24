@@ -7,9 +7,8 @@
   } from '$lib/ws';
   import {
     type ClientMessageData,
-    GETSchema,
-    type LoginData,
-    LoginSchema, POSTSchema,
+    GETSchema, ImagePOSTResponseSchema,
+    POSTSchema,
   } from '$lib';
   import ChatInput from '$lib/components/ChatInput.svelte';
   import MessageList from '$lib/components/MessageList.svelte';
@@ -49,14 +48,23 @@
   });
   eventListener.register('client-message', async (e) => {
     console.log(e.data.self);
-    messages.push(e.data)
+    messages.push(e.data);
     await gotoBottom();
   });
 
-  socket.addEventListener('message',async (e)=>{
+  socket.addEventListener('message', async (e) => {
     const data = EventSchema.safeParse(JSON.parse(e.data));
     if (data.success) {
       await eventListener.resolve(data.data as DefaultEvent);
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      socket.close();
+    }
+    if (document.visibilityState === 'visible') {
+      window.location.reload();
     }
   })
 
@@ -79,7 +87,7 @@
       clearInterval(heartbeatTimer);
       window.location.reload();
     }
-    if (waitTimes > 2) {
+    if (waitTimes > 3) {
       snackbar({
         message: '连接超时',
         closable: true,
@@ -88,7 +96,7 @@
       clearInterval(heartbeatTimer);
       window.location.reload();
     }
-  }, 30000);
+  }, 20000);
 
   let snackbar: (data: SnackbarIn) => void = $state(() => {
   });
@@ -102,22 +110,22 @@
     if (data) {
       const get = GETSchema.parse(data);
       inputName = get.user.username;
-      messages = get.messages
+      messages = get.messages;
       login = true;
     }
-    await tick()
+    await tick();
     if (messageList) {
-      messageList.scrollTop = messageList.scrollHeight
+      messageList.scrollTop = messageList.scrollHeight;
     }
   });
 
   async function gotoBottom() {
-    await tick()
+    await tick();
     if (messageList) {
       console.log(messageList.lastElementChild);
       messageList.lastElementChild?.scrollIntoView({
         behavior: 'smooth',
-        block: 'end',
+        block: 'nearest',
       });
     }
   }
@@ -126,6 +134,14 @@
     if (inputName.trim().length < 3) {
       snackbar({
         message: '名称至少需要三个字符',
+        closable: true,
+        timeout: 3000,
+      });
+      return;
+    }
+    if (inputName.trim().length > 20) {
+      snackbar({
+        message: '名称不能超过20个字符',
         closable: true,
         timeout: 3000,
       });
@@ -170,6 +186,22 @@
       }
     };
   }
+
+  async function uploadImage(image: File) {
+    const formData = new FormData();
+    formData.append('image', image);
+    const res = await fetch('/image', {
+      method: 'POST',
+      body: formData,
+    });
+    const data = ImagePOSTResponseSchema.safeParse(await res.json());
+    if (data.success) {
+      console.log(data);
+      if (data.data.success) {
+        inputMessage += `![${ image.name }](${ data.data.url })`;
+      }
+    }
+  }
 </script>
 
 <main class="container">
@@ -178,7 +210,7 @@
   </div>
   <div class="message-input m3-container">
     <ChatInput bind:value={inputMessage} onSubmit={submitMessage}
-               uploadImage={async ()=>{snackbar({message: '还没做，先用图床吧'})}}
+               uploadImage={uploadImage}
                disabled={dialogOpen}/>
   </div>
   <div class="user-list">

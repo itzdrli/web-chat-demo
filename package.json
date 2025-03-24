@@ -35,6 +35,8 @@
 		"markdown-it": "^14.1.0",
 		"normalize.css": "^8.0.1",
 		"postcss-preset-env": "^10.1.5",
+		"reggol": "^2.1.0",
+		"sharp": "^0.33.5",
 		"shiki": "^3.2.1",
 		"uuid": "^11.1.0",
 		"zod": "^3.24.2"

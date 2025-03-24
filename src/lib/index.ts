@@ -10,7 +10,11 @@ export type ClientMessageData =
   MessageData
   & { username: string, self: boolean };
 
-export type DBMessageData = MessageData & { username: string, userid: string };
+export type DBMessageData = MessageData & {
+  username: string,
+  userid: string,
+  rawContent: string
+};
 
 export interface LoginData {
   username: string;
@@ -29,10 +33,15 @@ export const GETSchema = zod.object({
     content: zod.string(),
     timestamp: zod.number(),
     self: zod.boolean(),
-  }))
-})
+  })),
+});
 
 
 export const POSTSchema = zod.object({
-  username: zod.string().min(3),
-})
+  username: zod.string().min(3).max(20),
+});
+
+export const ImagePOSTResponseSchema = zod.object({
+  success: zod.boolean(),
+  url: zod.string().optional(),
+});

@@ -64,6 +64,23 @@
     & :global(img) {
       max-width: 100%;
     }
+
+    & :global(p code) {
+      background-color: rgb(var(--inline-code-background));
+      color: var(--inline-code-color);
+      padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+      margin: 0 0.25rem 0 0.25rem;
+      border-radius: 6px;
+    }
+
+
+    & :global(p code:first-child) {
+      margin-left: 0;
+    }
+
+    & :global(p code:last-child) {
+      margin-right: 0;
+    }
   }
 
   :root {
@@ -73,7 +90,8 @@
   .message {
     display: flex;
     flex-direction: column;
-    padding: 1rem;
+    padding: 0.8rem;
+    gap: 0.5rem;
     border-radius: var(--m3-card-shape);
     color: rgb(var(--m3-scheme-on-surface));
     background-color: rgb(var(--m3-scheme-surface-container-low));
@@ -88,6 +106,7 @@
       justify-content: flex-end;
     }
   }
+
   @media (forced-colors: active) {
     .message {
       outline: solid 0.125rem;
