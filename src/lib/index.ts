@@ -1,6 +1,8 @@
 // place files you want to import through the `$lib` alias in this folder.
+import * as assert from 'node:assert';
 import type { ULID, UUID } from 'ulid';
-import zod from 'zod';
+import zod, { util } from 'zod';
+import assertEqual = util.assertEqual;
 
 export type SingInData = { username: string, userid: string };
 export const SignInSchema = zod.object({
@@ -61,7 +63,10 @@ export const BroadcastMessageSchema = zod.object({
   self: zod.boolean(),
 });
 
-export function desensitizeBroadcast(message: DBMessage, user: User): BroadcastMessage {
+export function desensitizeBroadcast(message: DBMessage, user: User, forUserid: string): BroadcastMessage {
+  if (message.userid !== user.userid) {
+    throw new Error('userid mismatch');
+  }
   return {
     user: {
       username: user.username,
@@ -70,7 +75,23 @@ export function desensitizeBroadcast(message: DBMessage, user: User): BroadcastM
     id: message.id,
     timestamp: message.timestamp,
     processedContent: message.processedContent,
-    self: message.userid == user.userid,
+    self: user.userid == forUserid,
+  };
+}
+
+export function desensitizeBroadcastNoUser(message: DBMessage, user: User): BroadcastMessage {
+  if (message.userid !== user.userid) {
+    throw new Error('userid mismatch');
+  }
+  return {
+    user: {
+      username: user.username,
+      tagline: user.tagline,
+    },
+    id: message.id,
+    timestamp: message.timestamp,
+    processedContent: message.processedContent,
+    self: false,
   };
 }
 

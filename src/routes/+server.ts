@@ -4,7 +4,7 @@ import {
   desensitizeBroadcast,
   type GETData, type POSTResponse,
 } from '$lib';
-import { db } from '$lib/server/db';
+import { db, toBroadcast, toBroadcastNoUser } from '$lib/server/db';
 import {
   json, type Peer,
   type Socket,
@@ -74,7 +74,7 @@ wsListener.register('send-message', async (e, p) => {
     await db.addMessage(dbMessage);
     const message: MessageReceiveFromServer = {
       type: 'receive-message',
-      data: desensitizeBroadcast(dbMessage, user),
+      data: await toBroadcastNoUser(dbMessage),
     };
     p.publish('chat', JSON.stringify(message));
     message.data.self = true;

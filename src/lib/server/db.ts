@@ -1,6 +1,6 @@
 import {
   type BroadcastMessage,
-  type DBMessage, desensitizeBroadcast,
+  type DBMessage, desensitizeBroadcast, desensitizeBroadcastNoUser,
   type SingInData,
   type User,
 } from '$lib';
@@ -80,8 +80,8 @@ export const db = {
   },
 };
 
-export async function toBroadcast(message: DBMessage, userid: string): Promise<BroadcastMessage> {
-  let user = await db.getUser(userid);
+export async function toBroadcast(message: DBMessage, forUserid: string): Promise<BroadcastMessage> {
+  let user = await db.getUser(message.userid);
   if (!user) {
     logger.error(`User ${ message.userid } not found`);
     user = {
@@ -90,7 +90,21 @@ export async function toBroadcast(message: DBMessage, userid: string): Promise<B
       tagline: 0,
     };
   }
-  return desensitizeBroadcast(message, user);
+  return desensitizeBroadcast(message, user, forUserid);
+}
+
+
+export async function toBroadcastNoUser(message: DBMessage): Promise<BroadcastMessage> {
+  let user = await db.getUser(message.userid);
+  if (!user) {
+    logger.error(`User ${ message.userid } not found`);
+    user = {
+      userid: 'placeholder',
+      username: 'Unknown',
+      tagline: 0,
+    };
+  }
+  return desensitizeBroadcastNoUser(message, user);
 }
 
 export async function toBroadcastArray(messages: DBMessage[], userid: string): Promise<BroadcastMessage[]> {
