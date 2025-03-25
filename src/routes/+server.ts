@@ -18,7 +18,9 @@ import { monotonicFactory } from 'ulid';
 import type {
   RequestHandler,
 } from './$types';
-import MarkdownIt from 'markdown-it';
+import MarkdownIt, {
+  type Options,
+} from 'markdown-it';
 import Shiki from '@shikijs/markdown-it';
 import Logger from '$lib/server/logger';
 
@@ -26,7 +28,11 @@ const logger = Logger('chat');
 
 const ulid = monotonicFactory();
 
-const md = new MarkdownIt();
+const md = new MarkdownIt({
+  breaks: true,
+  linkify: true,
+  typographer: true,
+});
 md.use(
   await Shiki({
     themes: {
@@ -35,6 +41,12 @@ md.use(
     },
   }),
 );
+
+const defTextRule = md.renderer.rules.text;
+
+md.renderer.rules.text = (tokens, idx, options, env, self) => {
+  return `<span>${ defTextRule?.(tokens, idx, options, env, self) ?? tokens[idx].content }</span>`;
+};
 
 const wsListener: CommonWsServerListener = new CommonWsServerListener();
 

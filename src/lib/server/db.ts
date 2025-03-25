@@ -81,7 +81,7 @@ export const db = {
 };
 
 export async function toBroadcast(message: DBMessage, userid: string): Promise<BroadcastMessage> {
-  let user = await db.getUser(message.userid);
+  let user = await db.getUser(userid);
   if (!user) {
     logger.error(`User ${ message.userid } not found`);
     user = {

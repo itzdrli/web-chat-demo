@@ -37,20 +37,68 @@
       margin-bottom: 0.5rem;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
+
       & .tagline {
         font-weight: normal;
         margin-left: 0.2rem;
+
         &:before {
           content: '#';
         }
+
         color: rgb(var(--m3-scheme-on-surface-variant));
       }
     }
+  }
+
+  :root {
+    --m3-card-shape: var(--m3-util-rounding-medium);
+  }
+
+  .message {
+    min-height: 2.8rem;
+    max-width: 80%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0.8rem;
+    gap: 0.5rem;
+    border-radius: var(--m3-card-shape);
+    color: rgb(var(--m3-scheme-on-surface));
+    background-color: rgb(var(--m3-scheme-surface-container-low));
+    box-shadow: var(--m3-util-elevation-1);
+
+    &.start {
+      align-items: flex-start;
+    }
+
+    &.end {
+      align-items: flex-end;
+    }
 
     & :global(img) {
-      margin: 0;
+      max-width: 100%;
       border-radius: 6px;
       object-fit: cover;
+      display: block;
+    }
+
+    & :global(img + img) {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    & :global(img:has(+ img)) {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    & :global(img:has(+ :not(img))) {
+      margin-bottom: 0.5rem;
+    }
+
+    & :global(:not(img) + img) {
+      margin-top: 0.5rem;
     }
 
     & :global(h1),
@@ -62,9 +110,9 @@
     & :global(pre),
     & :global(li),
     & :global(p) {
+      margin: 0;
       max-width: 100%;
       overflow-wrap: anywhere;
-      margin: 0;
       color: rgb(var(--m3-scheme-on-surface));
     }
 
@@ -83,11 +131,7 @@
       margin: 0;
     }
 
-    & :global(img) {
-      max-width: 100%;
-    }
-
-    & :global(p code) {
+    & :global(* code) {
       background-color: rgb(var(--inline-code-background));
       color: var(--inline-code-color);
       padding: 0.25rem 0.5rem 0.25rem 0.5rem;
@@ -96,11 +140,11 @@
     }
 
 
-    & :global(p code:first-child) {
+    & :global(* code:first-child) {
       margin-left: 0;
     }
 
-    & :global(p code:last-child) {
+    & :global(* code:last-child) {
       margin-right: 0;
     }
 
@@ -120,31 +164,6 @@
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-    }
-  }
-
-  :root {
-    --m3-card-shape: var(--m3-util-rounding-medium);
-  }
-
-  .message {
-    min-height: 2.8rem;
-    max-width: 80%;
-    display: flex;
-    flex-direction: column;
-    padding: 0.8rem;
-    gap: 0.5rem;
-    border-radius: var(--m3-card-shape);
-    color: rgb(var(--m3-scheme-on-surface));
-    background-color: rgb(var(--m3-scheme-surface-container-low));
-    box-shadow: var(--m3-util-elevation-1);
-
-    &.start {
-      justify-content: flex-start;
-    }
-
-    &.end {
-      justify-content: flex-end;
     }
   }
 
