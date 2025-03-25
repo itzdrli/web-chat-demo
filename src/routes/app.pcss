@@ -92,10 +92,14 @@
   }
 }
 
-body, html {
+body, html, #app {
   font-family: "Noto Sans SC Variable", sans-serif;
   width: 100%;
   height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
+  min-width: 0;
+  min-height: 0;
   background-color: rgb(var(--m3-scheme-background));
   scrollbar-color: #4C4D51 transparent;
   scrollbar-width: thin;
@@ -150,5 +154,14 @@ code {
   :root ::backdrop {
     --inline-code-background: 255 255 255;
     --inline-code-color: #393a34;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

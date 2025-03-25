@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { PaperPlaneTilt, FrameCorners, Image } from 'phosphor-svelte';
+  import {
+    PaperPlaneTilt,
+    FrameCorners,
+    Image,
+    CircleNotch,
+  } from 'phosphor-svelte';
   import { fade } from 'svelte/transition';
 
   interface ChatInputProps {
@@ -7,6 +12,7 @@
     onSubmit?: () => void,
     uploadImage?: (image: File) => Promise<void>
     disabled?: boolean
+    onLoading?: boolean
   }
 
   function onKeyDown(e: KeyboardEvent) {
@@ -20,6 +26,7 @@
     onSubmit,
     uploadImage,
     disabled = false,
+    onLoading = false,
   }: ChatInputProps = $props();
 
   let multiLine = $state(false);
@@ -36,30 +43,36 @@
     }
   }
 
-  async function selectImage() {
+  function selectImage() {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
     input.onchange = async () => {
-      disabled = true;
       await uploadImage?.(input.files![0]);
-      disabled = false;
     };
     input.click();
   }
 </script>
 
 <div class="input-container {multiLine ? 'multi-line' : ''}">
-  {#if multiLine}
+  {#if onLoading}
+    <div class="loading-placeholder {multiLine ? 'multi-line' : ''}">
+      <div class="icon">
+        <CircleNotch size="fill"/>
+      </div>
+    </div>
+  {:else }
+    {#if multiLine}
     <textarea autocomplete="off" bind:value={value}
               onsubmit={() => onSubmit?.()} onkeydown={onKeyDown}
               disabled={disabled} placeholder="说点什么吧..."
               onpaste={onPaste}></textarea>
-  {:else}
-    <input autocomplete="off" type="text" bind:value={value}
-           onsubmit={() => onSubmit?.()} onkeydown={onKeyDown}
-           disabled={disabled} placeholder="说点什么吧..."
-           onpaste={onPaste}>
+    {:else}
+      <input autocomplete="off" type="text" bind:value={value}
+             onsubmit={() => onSubmit?.()} onkeydown={onKeyDown}
+             disabled={disabled} placeholder="说点什么吧..."
+             onpaste={onPaste}>
+    {/if}
   {/if}
   <button class="b1" onclick={() => multiLine = !multiLine} disabled={disabled}>
     <FrameCorners size="1.5rem"/>
@@ -87,6 +100,7 @@
         "i b1 b2" auto
         "i b3 b4" auto
         "i - -" 1fr/ 1fr auto auto;
+    width: 100%;
 
     & .b1 {
       grid-area: b1;
@@ -102,6 +116,10 @@
 
     &.multi-line {
       height: 10rem;
+      grid-template:
+        "i b1 b2" auto
+        "i b3 b4" auto
+        "i - -" 1fr/ 1fr auto auto;
     }
 
     &:focus-within {
@@ -114,15 +132,33 @@
       color: rgb(var(--m3-schema-on-surface));
     }
 
-    & input, & textarea {
+    & input, & textarea, & .loading-placeholder {
       grid-area: i;
-      flex-grow: 1;
       outline: none;
       color: rgb(var(--m3-schema-on-surface));
       height: 100%;
       box-sizing: border-box;
       padding: 1rem;
       resize: none;
+      width: 100%;
+    }
+
+    & .loading-placeholder {
+      display: flex;
+      justify-content: start;
+      align-items: center;
+
+      &.multi-line {
+        align-items: start;
+      }
+
+      & .icon {
+        height: 1.5rem;
+
+        & :global(svg) {
+          animation: spin 1s linear infinite;
+        }
+      }
     }
 
     & button {

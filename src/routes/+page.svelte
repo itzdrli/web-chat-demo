@@ -6,7 +6,7 @@
     type DefaultEvent,
   } from '$lib/ws';
   import {
-    type ClientMessageData,
+    type BroadcastMessage,
     GETSchema, ImagePOSTResponseSchema,
     POSTSchema,
   } from '$lib';
@@ -21,7 +21,9 @@
   } from 'm3-svelte';
   import { onMount, tick } from 'svelte';
 
-  let messages = $state<ClientMessageData[]>([]);
+  let inputOnLoading = $state(false);
+
+  let messages = $state<BroadcastMessage[]>([]);
 
   let inputMessage = $state('');
 
@@ -29,12 +31,7 @@
 
   let messageList: HTMLDivElement | null = null;
 
-  let login = $state(false);
-
-  let dialogOpen = $derived(!login);
-
-  WebSocket.prototype.emit = emit;
-  const socket = new WebSocket(`ws://${ window.location.host }`);
+  let userExists = $state(true);
 
   let echo = true;
 
@@ -46,77 +43,106 @@
       echo = true;
     }
   });
-  eventListener.register('client-message', async (e) => {
+  eventListener.register('receive-message', async (e) => {
     console.log(e.data.self);
     messages.push(e.data);
     await gotoBottom();
   });
 
-  socket.addEventListener('message', async (e) => {
-    const data = EventSchema.safeParse(JSON.parse(e.data));
-    if (data.success) {
-      await eventListener.resolve(data.data as DefaultEvent);
-    }
-  });
+  let socket: WebSocket | null = null;
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      socket.close();
-    }
-    if (document.visibilityState === 'visible') {
-      window.location.reload();
-    }
-  })
+  WebSocket.prototype.emit = emit;
 
-  const heartbeatTimer = setInterval(() => {
-    try {
-      if (echo) {
-        waitTimes = 0;
-        socket.emit('heartbeat', { heartbeat: 'ping' });
-        echo = false;
-      } else {
-        waitTimes++;
+  let heartbeatTimer: number | null = null;
+
+  function initSocket() {
+    socket?.close();
+    socket = new WebSocket(`ws://${ window.location.host }`);
+    socket.addEventListener('message', async (e) => {
+      const data = EventSchema.safeParse(JSON.parse(e.data));
+      if (data.success) {
+        await eventListener.resolve(data.data as DefaultEvent);
       }
-    } catch (e) {
-      snackbar({
-        message: '连接已断开',
-        closable: true,
-        timeout: 15000,
-      });
-      console.error(e);
-      clearInterval(heartbeatTimer);
-      window.location.reload();
-    }
-    if (waitTimes > 3) {
-      snackbar({
-        message: '连接超时',
-        closable: true,
-        timeout: 15000,
-      });
-      clearInterval(heartbeatTimer);
-      window.location.reload();
-    }
-  }, 20000);
+    });
+    initHeartbeat();
+  }
 
-  let snackbar: (data: SnackbarIn) => void = $state(() => {
-  });
+  function initHeartbeat() {
+    if (heartbeatTimer) clearInterval(heartbeatTimer);
+    heartbeatTimer =
+      setInterval(async () => {
+        try {
+          if (echo) {
+            waitTimes = 0;
+            socket?.emit('heartbeat', { heartbeat: 'ping' });
+            echo = false;
+          } else {
+            waitTimes++;
+          }
+        } catch (e) {
+          snackbar({
+            message: '连接已断开, 尝试重连',
+            closable: true,
+            timeout: 15000,
+          });
+          console.error(e);
+          if (heartbeatTimer) clearInterval(heartbeatTimer);
+          await reload();
+        }
+        if (waitTimes > 3) {
+          snackbar({
+            message: '连接超时, 尝试重连',
+            closable: true,
+            timeout: 15000,
+          });
+          if (heartbeatTimer) clearInterval(heartbeatTimer);
+          await reload();
+        }
+      }, 20000) as unknown as number;
+  }
 
+  function clearSocket() {
+    if (heartbeatTimer) clearInterval(heartbeatTimer);
+    socket?.close();
+    socket = null;
+  }
 
-  onMount(async () => {
+  async function initMessages() {
     const res = await fetch('/', {
       method: 'GET',
     });
     const data = await res.json();
     if (data) {
       const get = GETSchema.parse(data);
-      inputName = get.user.username;
       messages = get.messages;
-      login = true;
+      userExists = get.exists;
     }
     await tick();
     if (messageList) {
       messageList.scrollTop = messageList.scrollHeight;
     }
+  }
+
+  async function reload() {
+    initSocket();
+    await initMessages();
+  }
+
+  window.document.addEventListener('visibilitychange', (e) => {
+    if (document.visibilityState == 'hidden') {
+      clearSocket();
+    }
+    if (document.visibilityState == 'visible') {
+      reload();
+    }
+  });
+
+
+  let snackbar: (data: SnackbarIn) => void = $state(() => {
+  });
+
+  onMount(async () => {
+    await reload();
   });
 
   async function gotoBottom() {
@@ -171,10 +197,7 @@
       });
       return;
     }
-    socket.emit('server-message', {
-      content: inputMessage,
-      timestamp: Date.now(),
-    });
+    socket?.emit('send-message', inputMessage);
     inputMessage = '';
     await tick();
   };
@@ -188,6 +211,12 @@
   }
 
   async function uploadImage(image: File) {
+    snackbar({
+      message: '上传中...',
+      timeout: 3000,
+      closable: true,
+    });
+    inputOnLoading = true;
     const formData = new FormData();
     formData.append('image', image);
     const res = await fetch('/image', {
@@ -201,6 +230,7 @@
         inputMessage += `![${ image.name }](${ data.data.url })`;
       }
     }
+    inputOnLoading = false;
   }
 </script>
 
@@ -211,13 +241,14 @@
   <div class="message-input m3-container">
     <ChatInput bind:value={inputMessage} onSubmit={submitMessage}
                uploadImage={uploadImage}
-               disabled={dialogOpen}/>
+               disabled={!userExists}
+               onLoading={inputOnLoading}/>
   </div>
   <div class="user-list">
 
   </div>
 </main>
-<Dialog headline="设置名称" bind:open={dialogOpen} closeOnClick={false}
+<Dialog headline="设置名称" open={!userExists} closeOnClick={false}
         closeOnEsc={false}>
   <div class="dialog-content">
     <span>此名称并不重要，只是为了展示</span>

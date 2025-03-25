@@ -9,6 +9,21 @@ export const GET: RequestHandler = async ({ params }) => {
 };
 
 async function findImg(name: string): Promise<Response> {
+  // 老版本兼容
+  if (path.extname(name) !== '.webp') {
+    try {
+      const file = await fs.readFile(`./images/${ name }`);
+      return new Response(file, {
+        headers: {
+          'Content-Type': 'image/*',
+        }
+      })
+    }catch (e){
+      return new Response(null, {
+        status: 404,
+      })
+    }
+  }
   const rawName = path.parse(name).name;
   try {
     await fs.access('./images/compressed', fs.constants.F_OK);

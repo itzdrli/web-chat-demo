@@ -1,9 +1,9 @@
 import type {
-  ClientMessageData, MessageData,
+  BroadcastMessage,
 } from '$lib';
 import type {
   Peer,
-  Message,
+  Message as SocketMessage,
 } from '@sveltejs/kit';
 
 import zod from 'zod';
@@ -18,12 +18,12 @@ export const EventSchema = zod.object({
   data: zod.any(),
 });
 
-export interface MessageEventServer extends WsEvent<'server-message'> {
-  data: MessageData;
+export interface MessageSendFromClient extends WsEvent<'send-message'> {
+  data: string;
 }
 
-export interface MessageEventClient extends WsEvent<'client-message'> {
-  data: ClientMessageData;
+export interface MessageReceiveFromServer extends WsEvent<'receive-message'> {
+  data: BroadcastMessage;
 }
 
 export interface HeartbeatEvent extends WsEvent<'heartbeat'> {
@@ -33,8 +33,8 @@ export interface HeartbeatEvent extends WsEvent<'heartbeat'> {
 }
 
 export type WsEventMap = {
-  'server-message': MessageEventServer
-  'client-message': MessageEventClient
+  'send-message': MessageSendFromClient
+  'receive-message': MessageReceiveFromServer
   'heartbeat': HeartbeatEvent
 }
 
@@ -53,7 +53,7 @@ export interface WsServerEventListener {
 
   call<T extends keyof WsEventMap, E extends WsEventMap[T]>(event: string, peer: Peer, data: E): void;
 
-  resolve(peer: Peer, message: Message): void;
+  resolve(peer: Peer, message: SocketMessage): void;
 }
 
 export class CommonWsListener implements WsEventListener {
@@ -100,7 +100,7 @@ export class CommonWsServerListener implements WsServerEventListener {
     }
   }
 
-  async resolve(peer: Peer, message: Message) {
+  async resolve(peer: Peer, message: SocketMessage) {
     const event = EventSchema.parse(message.json());
     await this.call(event.type, peer, event as WsEventMap[keyof WsEventMap]);
   }

@@ -1,14 +1,20 @@
-import { POSTSchema } from '$lib';
-import { db, messageAbstention } from '$lib/server/db';
+import {
+  type DBMessage,
+  POSTSchema,
+  desensitizeBroadcast,
+  type GETData, type POSTResponse,
+} from '$lib';
+import { db } from '$lib/server/db';
 import {
   json, type Peer,
   type Socket,
 } from '@sveltejs/kit';
 import Cookie from 'cookie';
 import {
-  CommonWsServerListener, type MessageEventClient,
+  CommonWsServerListener, type MessageReceiveFromServer,
   server,
 } from '$lib/ws';
+import { monotonicFactory } from 'ulid';
 import type {
   RequestHandler,
 } from './$types';
@@ -17,6 +23,8 @@ import Shiki from '@shikijs/markdown-it';
 import Logger from '$lib/server/logger';
 
 const logger = Logger('chat');
+
+const ulid = monotonicFactory();
 
 const md = new MarkdownIt();
 md.use(
@@ -36,28 +44,25 @@ wsListener.register('heartbeat', async (e, p) => {
   }
 });
 
-wsListener.register('server-message', async (e, p) => {
+wsListener.register('send-message', async (e, p) => {
   const user = await getUser(p);
   if (!user) {
     throw new Error('No user');
   }
-  const rendered = md.render(e.data.content);
+  const rendered = md.render(e.data);
   if (user) {
-    await db.addMessage({
-      username: user.username,
-      content: rendered,
-      timestamp: e.data.timestamp,
+    const timestamp = Date.now();
+    const dbMessage: DBMessage = {
+      content: e.data,
+      id: ulid(),
+      processedContent: rendered,
+      timestamp,
       userid: user.userid,
-      rawContent: e.data.content,
-    });
-    const message: MessageEventClient = {
-      type: 'client-message',
-      data: {
-        username: user.username,
-        content: rendered,
-        timestamp: e.data.timestamp,
-        self: false,
-      },
+    };
+    await db.addMessage(dbMessage);
+    const message: MessageReceiveFromServer = {
+      type: 'receive-message',
+      data: desensitizeBroadcast(dbMessage, user),
     };
     p.publish('chat', JSON.stringify(message));
     message.data.self = true;
@@ -108,8 +113,8 @@ export const POST: RequestHandler = async ({ cookies, request }) => {
   if (!token) {
     throw new Error('No token');
   }
-  await db.setUser(token, { ...data, userid: token });
-  return json(data);
+  const res: POSTResponse = await db.singInUser({ ...data, userid: token });
+  return json(res);
 };
 
 export const GET: RequestHandler = async ({ cookies }) => {
@@ -120,11 +125,11 @@ export const GET: RequestHandler = async ({ cookies }) => {
       path: '/',
       secure: false,
       sameSite: 'lax',
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      expires: new Date(Date.now() + 10000 * 60 * 60 * 24),
       httpOnly: false,
     });
   }
-  const user = await db.getUser(token);
-  const messages = messageAbstention(await db.getMessages(), token);
-  return json({ user: user, messages });
+  const messages = await db.getMessagesForBroadcast(token);
+  const res: GETData = { messages, exists: await db.userExists(token) };
+  return json(res);
 };

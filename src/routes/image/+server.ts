@@ -30,11 +30,10 @@ async function saveFile(file: File, name: string): Promise<boolean> {
         fs.mkdir('./images', (err) => {
           if (err) {
             reject(err);
-            return;
           }
-          saveFile(file, name);
+          resolve(saveFile(file, name))
         });
-        return;
+        resolve(false);
       }
       fs.writeFile(`./images/${ name }`, Buffer.from(await file.arrayBuffer()), (err) => {
         if (err) {

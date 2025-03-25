@@ -1,16 +1,19 @@
 <script lang="ts">
-  import type { ClientMessageData } from '$lib';
+  import type { BroadcastMessage } from '$lib';
 
   const { data, at }: {
-    data: ClientMessageData,
+    data: BroadcastMessage,
     at: 'end' | 'start'
   } = $props();
+
+  const taglineString = $derived(data.user.tagline.toString().padStart(2, '0'));
 </script>
 
 <div class="message-container {at}">
-  <p class="username">{data.username}</p>
+  <p class="username">{data.user.username}<span
+    class="tagline">{taglineString}</span></p>
   <div class="message {at}">
-    {@html data.content}
+    {@html data.processedContent}
   </div>
 </div>
 
@@ -34,6 +37,14 @@
       margin-bottom: 0.5rem;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
+      & .tagline {
+        font-weight: normal;
+        margin-left: 0.2rem;
+        &:before {
+          content: '#';
+        }
+        color: rgb(var(--m3-scheme-on-surface-variant));
+      }
     }
 
     & :global(img) {
@@ -54,6 +65,16 @@
       max-width: 100%;
       overflow-wrap: anywhere;
       margin: 0;
+      color: rgb(var(--m3-scheme-on-surface));
+    }
+
+    & :global(pre),
+    & :global(p),
+    & :global(span),
+    & :global(a),
+    & :global(li) {
+      line-height: 1.2rem;
+      font-size: 1.1rem;
     }
 
     & :global(ul),
@@ -82,6 +103,24 @@
     & :global(p code:last-child) {
       margin-right: 0;
     }
+
+    & :global(a) {
+      color: rgb(var(--m3-scheme-primary));
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 1px;
+    }
+
+    & :global(blockquote) {
+      background-color: rgb(var(--m3-scheme-surface-container-high));
+      margin: 0;
+      padding: 0.5rem;
+      border-radius: var(--m3-card-shape);
+      border-left: solid 5px rgb(var(--m3-scheme-primary-container));
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
   }
 
   :root {
@@ -89,6 +128,7 @@
   }
 
   .message {
+    min-height: 2.8rem;
     max-width: 80%;
     display: flex;
     flex-direction: column;
