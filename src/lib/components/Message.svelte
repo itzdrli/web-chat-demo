@@ -22,6 +22,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    overflow: visible;
 
     &.start {
       align-items: flex-start;

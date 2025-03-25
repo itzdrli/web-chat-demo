@@ -29,13 +29,18 @@
 
   let inputName = $state('');
 
-  let messageList: HTMLDivElement | null = null;
+  let list: MessageList | null = null;
 
   let userExists = $state(true);
 
   let echo = true;
 
   let waitTimes = 0;
+
+  let snackbar: (data: SnackbarIn) => void = $state(() => {
+  });
+
+  let forceScroll = true;
 
   const eventListener = new CommonWsListener();
   eventListener.register('heartbeat', async (e) => {
@@ -44,9 +49,8 @@
     }
   });
   eventListener.register('receive-message', async (e) => {
-    console.log(e.data.self);
     messages.push(e.data);
-    await gotoBottom();
+    await list?.gotoBottomSmooth();
   });
 
   let socket: WebSocket | null = null;
@@ -117,10 +121,8 @@
       messages = get.messages;
       userExists = get.exists;
     }
-    await tick();
-    if (messageList) {
-      messageList.scrollTop = messageList.scrollHeight;
-    }
+    await list?.gotoBottom(forceScroll);
+    forceScroll = false;
   }
 
   async function reload() {
@@ -128,7 +130,7 @@
     await initMessages();
   }
 
-  window.document.addEventListener('visibilitychange', (e) => {
+  window.document.addEventListener('visibilitychange', (_) => {
     if (document.visibilityState == 'hidden') {
       clearSocket();
     }
@@ -137,24 +139,9 @@
     }
   });
 
-
-  let snackbar: (data: SnackbarIn) => void = $state(() => {
-  });
-
   onMount(async () => {
     await reload();
   });
-
-  async function gotoBottom() {
-    await tick();
-    if (messageList) {
-      console.log(messageList.lastElementChild);
-      messageList.lastElementChild?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-      });
-    }
-  }
 
   async function submitName() {
     if (inputName.trim().length < 3) {
@@ -235,15 +222,14 @@
 </script>
 
 <main class="container">
-  <div class="message-list m3-container" bind:this={messageList}>
-    <MessageList messages={messages}/>
-  </div>
-  <div class="message-input m3-container">
+
+  <div class="message-input">
     <ChatInput bind:value={inputMessage} onSubmit={submitMessage}
                uploadImage={uploadImage}
                disabled={!userExists}
                onLoading={inputOnLoading}/>
   </div>
+  <MessageList {messages} bind:this={list}></MessageList>
   <div class="user-list">
 
   </div>
@@ -270,20 +256,11 @@
         "user-list message-list" 1fr
         "user-list message-input" auto / auto 1fr;
 
-    & .message-list, & .message-input {
+    & .message-input {
       padding: 1rem;
+      box-sizing: border-box;
     }
 
-    & .message-list {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      flex-wrap: nowrap;
-      gap: 1rem;
-      grid-area: message-list;
-      overflow-y: scroll;
-      overflow-x: hidden;
-    }
 
     & .message-input {
       grid-area: message-input;
