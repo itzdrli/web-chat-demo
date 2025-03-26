@@ -52,6 +52,7 @@
     };
     input.click();
   }
+  const multiLineWrap = 'off' as any
 </script>
 
 <div class="input-container {multiLine ? 'multi-line' : ''}">
@@ -66,7 +67,8 @@
     <textarea autocomplete="off" bind:value={value}
               onsubmit={() => onSubmit?.()} onkeydown={onKeyDown}
               disabled={disabled} placeholder="说点什么吧..."
-              onpaste={onPaste}></textarea>
+              onpaste={onPaste}
+              wrap={multiLineWrap}></textarea>
     {:else}
       <input autocomplete="off" type="text" bind:value={value}
              onsubmit={() => onSubmit?.()} onkeydown={onKeyDown}
@@ -141,6 +143,10 @@
       padding: 1rem;
       resize: none;
       width: 100%;
+    }
+
+    & textarea {
+
     }
 
     & .loading-placeholder {

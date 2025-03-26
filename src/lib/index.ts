@@ -1,8 +1,6 @@
 // place files you want to import through the `$lib` alias in this folder.
-import * as assert from 'node:assert';
 import type { ULID, UUID } from 'ulid';
-import zod, { util } from 'zod';
-import assertEqual = util.assertEqual;
+import zod from 'zod';
 
 export type SingInData = { username: string, userid: string };
 export const SignInSchema = zod.object({
@@ -50,14 +48,13 @@ export const MessageSchema = zod.object({
   user: UserSchema,
 });
 
-export type BroadcastMessage = Omit<DesensitizedMessage, 'content'> & {
+export type BroadcastMessage = DesensitizedMessage & {
   timestamp: number,
   processedContent: string,
   self: boolean
 };
 export const BroadcastMessageSchema = zod.object({
-  user: DesensitizedMessageSchema.shape.user,
-  id: DesensitizedMessageSchema.shape.id,
+  ...DesensitizedMessageSchema.shape,
   timestamp: zod.number(),
   processedContent: zod.string(),
   self: zod.boolean(),
@@ -74,6 +71,7 @@ export function desensitizeBroadcast(message: DBMessage, user: User, forUserid: 
     },
     id: message.id,
     timestamp: message.timestamp,
+    content: message.content,
     processedContent: message.processedContent,
     self: user.userid == forUserid,
   };
@@ -90,6 +88,7 @@ export function desensitizeBroadcastNoUser(message: DBMessage, user: User): Broa
     },
     id: message.id,
     timestamp: message.timestamp,
+    content: message.content,
     processedContent: message.processedContent,
     self: false,
   };
@@ -121,6 +120,7 @@ export const POSTSchema = zod.object({
 });
 
 export type POSTResponse = User
+export const POSTResponseSchema = UserSchema;
 
 export type ImagePOSTResponseData = { success: boolean, url?: string };
 export const ImagePOSTResponseSchema = zod.object({

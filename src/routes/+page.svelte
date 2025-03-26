@@ -7,8 +7,7 @@
   } from '$lib/ws';
   import {
     type BroadcastMessage,
-    GETSchema, ImagePOSTResponseSchema,
-    POSTSchema,
+    GETSchema, ImagePOSTResponseSchema, POSTResponseSchema,
   } from '$lib';
   import ChatInput from '$lib/components/ChatInput.svelte';
   import MessageList from '$lib/components/MessageList.svelte';
@@ -169,7 +168,7 @@
     });
     const data = await res.json();
     if (data) {
-      const user = POSTSchema.parse(data);
+      const user = POSTResponseSchema.parse(data);
       inputName = user.username;
     }
     window.location.reload();

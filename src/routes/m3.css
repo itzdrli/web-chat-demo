@@ -1,0 +1,93 @@
+@import url("m3-svelte/misc/styles.css");
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+  }
+
+  :root, ::backdrop {
+    --m3-scheme-primary: 80 98 96;
+    --m3-scheme-on-primary: 255 255 255;
+    --m3-scheme-primary-container: 211 230 227;
+    --m3-scheme-on-primary-container: 57 74 72;
+    --m3-scheme-inverse-primary: 184 202 199;
+    --m3-scheme-secondary: 86 96 95;
+    --m3-scheme-on-secondary: 255 255 255;
+    --m3-scheme-secondary-container: 218 229 226;
+    --m3-scheme-on-secondary-container: 63 73 71;
+    --m3-scheme-tertiary: 74 99 96;
+    --m3-scheme-on-tertiary: 255 255 255;
+    --m3-scheme-tertiary-container: 204 232 228;
+    --m3-scheme-on-tertiary-container: 50 75 73;
+    --m3-scheme-error: 186 26 26;
+    --m3-scheme-on-error: 255 255 255;
+    --m3-scheme-error-container: 255 218 214;
+    --m3-scheme-on-error-container: 147 0 10;
+    --m3-scheme-background: 250 249 248;
+    --m3-scheme-on-background: 26 28 27;
+    --m3-scheme-surface: 250 249 248;
+    --m3-scheme-on-surface: 26 28 27;
+    --m3-scheme-surface-variant: 227 226 225;
+    --m3-scheme-on-surface-variant: 70 71 70;
+    --m3-scheme-inverse-surface: 47 49 48;
+    --m3-scheme-inverse-on-surface: 242 240 239;
+    --m3-scheme-outline: 119 119 118;
+    --m3-scheme-outline-variant: 199 198 197;
+    --m3-scheme-shadow: 0 0 0;
+    --m3-scheme-scrim: 0 0 0;
+    --m3-scheme-surface-dim: 219 218 217;
+    --m3-scheme-surface-bright: 250 249 248;
+    --m3-scheme-surface-container-lowest: 255 255 255;
+    --m3-scheme-surface-container-low: 244 243 242;
+    --m3-scheme-surface-container: 239 238 236;
+    --m3-scheme-surface-container-high: 233 232 231;
+    --m3-scheme-surface-container-highest: 227 226 225;
+    --m3-scheme-surface-tint: 80 98 96;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+
+  :root, ::backdrop {
+    --m3-scheme-primary: 184 202 199;
+    --m3-scheme-on-primary: 35 51 50;
+    --m3-scheme-primary-container: 57 74 72;
+    --m3-scheme-on-primary-container: 211 230 227;
+    --m3-scheme-inverse-primary: 80 98 96;
+    --m3-scheme-secondary: 190 201 198;
+    --m3-scheme-on-secondary: 41 50 49;
+    --m3-scheme-secondary-container: 63 73 71;
+    --m3-scheme-on-secondary-container: 218 229 226;
+    --m3-scheme-tertiary: 176 204 200;
+    --m3-scheme-on-tertiary: 28 53 50;
+    --m3-scheme-tertiary-container: 50 75 73;
+    --m3-scheme-on-tertiary-container: 204 232 228;
+    --m3-scheme-error: 255 180 171;
+    --m3-scheme-on-error: 105 0 5;
+    --m3-scheme-error-container: 147 0 10;
+    --m3-scheme-on-error-container: 255 218 214;
+    --m3-scheme-background: 18 20 19;
+    --m3-scheme-on-background: 227 226 225;
+    --m3-scheme-surface: 18 20 19;
+    --m3-scheme-on-surface: 227 226 225;
+    --m3-scheme-surface-variant: 70 71 70;
+    --m3-scheme-on-surface-variant: 199 198 197;
+    --m3-scheme-inverse-surface: 227 226 225;
+    --m3-scheme-inverse-on-surface: 47 49 48;
+    --m3-scheme-outline: 145 145 144;
+    --m3-scheme-outline-variant: 70 71 70;
+    --m3-scheme-shadow: 0 0 0;
+    --m3-scheme-scrim: 0 0 0;
+    --m3-scheme-surface-dim: 18 20 19;
+    --m3-scheme-surface-bright: 56 57 57;
+    --m3-scheme-surface-container-lowest: 13 14 14;
+    --m3-scheme-surface-container-low: 26 28 27;
+    --m3-scheme-surface-container: 31 32 31;
+    --m3-scheme-surface-container-high: 41 42 42;
+    --m3-scheme-surface-container-highest: 52 53 52;
+    --m3-scheme-surface-tint: 184 202 199;
+  }
+}
