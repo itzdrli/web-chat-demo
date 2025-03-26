@@ -48,6 +48,12 @@ md.renderer.rules.text = (tokens, idx, options, env, self) => {
   return `<span>${ defTextRule?.(tokens, idx, options, env, self) ?? tokens[idx].content }</span>`;
 };
 
+// const defCodeInline = md.renderer.rules.code_inline;
+
+md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {
+  return `<code class="inline">${ tokens[idx].content }</code>`;
+}
+
 const wsListener: CommonWsServerListener = new CommonWsServerListener();
 
 wsListener.register('heartbeat', async (e, p) => {

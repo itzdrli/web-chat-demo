@@ -1,6 +1,7 @@
 <script lang="ts">
   const { children } = $props();
   import './app.pcss';
+  import './m3.css';
   import 'normalize.css';
   import { v4 } from 'uuid';
   import "@fontsource/jetbrains-mono"
