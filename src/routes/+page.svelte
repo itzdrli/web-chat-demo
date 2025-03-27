@@ -199,7 +199,7 @@
   async function uploadImage(image: File) {
     snackbar({
       message: '上传中...',
-      timeout: 3000,
+      timeout: 1500,
       closable: true,
     });
     inputOnLoading = true;

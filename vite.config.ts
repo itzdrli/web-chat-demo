@@ -6,6 +6,8 @@ export default defineConfig({
   plugins: [sveltekit()],
   server: {
     host: '0.0.0.0',
+    port: 5721,
+    allowedHosts: ['chat.itzdrli.cc']
   },
   css: {
     postcss: {
